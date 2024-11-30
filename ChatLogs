@@ -1,0 +1,70 @@
+local webhook = "nill"
+local http = game:GetService("HttpService")
+local players = game:GetService("Players")
+
+local connectedPlayers = {}
+
+local function sendToWebhook(playerName, userId, message, timestamp)
+    local data = {
+        ["content"] = "",
+        ["embeds"] = {{
+            ["title"] = "Chat Logs",
+            ["description"] = "",
+            ["type"] = "rich",
+            ["color"] = tonumber(0x3498db), -- Niebieski kolor
+            ["fields"] = {{
+                ["name"] = "Player Name",
+                ["value"] = playerName,
+                ["inline"] = true,
+            },
+            {
+                ["name"] = "User ID",
+                ["value"] = tostring(userId),
+                ["inline"] = true,
+            },
+            {
+                ["name"] = "Message",
+                ["value"] = message,
+                ["inline"] = false,
+            },
+            {
+                ["name"] = "Timestamp",
+                ["value"] = "<t:" .. timestamp .. ":F>",
+                ["inline"] = false,
+            }}
+        }}
+    }
+
+    pcall(function()
+        request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = http:JSONEncode(data),
+        })
+    end)
+end
+
+local function onPlayerChatted(player, message)
+    local timestamp = os.time()
+    sendToWebhook(player.Name, player.UserId, message, timestamp)
+end
+
+local function handlePlayer(player)
+    if not connectedPlayers[player.UserId] then
+        connectedPlayers[player.UserId] = true -- Oznacz gracza jako nasłuchiwanego
+        player.Chatted:Connect(function(message)
+            onPlayerChatted(player, message)
+        end)
+    end
+end
+
+players.PlayerAdded:Connect(function(player)
+    handlePlayer(player)
+end)
+
+for _, player in ipairs(players:GetPlayers()) do
+    handlePlayer(player)
+end
