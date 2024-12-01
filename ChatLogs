@@ -11,7 +11,7 @@ local function sendToWebhook(playerName, userId, message, timestamp)
             ["title"] = "Chat Logs",
             ["description"] = "",
             ["type"] = "rich",
-            ["color"] = tonumber(0x3498db), -- Niebieski kolor
+            ["color"] = tonumber(0x3498db),
             ["fields"] = {{
                 ["name"] = "Player Name",
                 ["value"] = playerName,
@@ -54,7 +54,7 @@ end
 
 local function handlePlayer(player)
     if not connectedPlayers[player.UserId] then
-        connectedPlayers[player.UserId] = true -- Oznacz gracza jako nasłuchiwanego
+        connectedPlayers[player.UserId] = true
         player.Chatted:Connect(function(message)
             onPlayerChatted(player, message)
         end)
